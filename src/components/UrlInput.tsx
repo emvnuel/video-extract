@@ -1,9 +1,7 @@
-
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Search, Upload } from "lucide-react";
-import { toast } from "sonner";
+import { Search } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 
 interface UrlInputProps {
@@ -35,29 +33,6 @@ export function UrlInput({ onExtract, isLoading }: UrlInputProps) {
     onExtract(url);
   };
 
-  const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
-    
-    if (file.type !== "text/html") {
-      toast({
-        title: "Invalid file type",
-        description: "Please upload an HTML file",
-        variant: "destructive",
-      });
-      return;
-    }
-    
-    // Here we would handle the file, but for now just notify
-    toast({
-      title: "File received",
-      description: `Processing ${file.name}`,
-    });
-    
-    // In real implementation we'd read the file and extract videos
-    onExtract(file.name, true);
-  };
-
   return (
     <div className="w-full max-w-3xl mx-auto bg-card rounded-lg p-6 shadow-md animate-fade-in">
       <form onSubmit={handleSubmit} className="space-y-4">
@@ -82,32 +57,6 @@ export function UrlInput({ onExtract, isLoading }: UrlInputProps) {
           >
             {isLoading ? "Extracting..." : "Extract Videos"}
           </Button>
-        </div>
-        
-        <div className="flex items-center justify-center">
-          <div className="border-t flex-grow border-border"></div>
-          <span className="px-4 text-sm text-muted-foreground">OR</span>
-          <div className="border-t flex-grow border-border"></div>
-        </div>
-        
-        <div className="flex justify-center">
-          <div className="relative">
-            <input
-              type="file"
-              id="file-upload"
-              className="sr-only"
-              onChange={handleFileUpload}
-              accept=".html,.htm"
-              disabled={isLoading}
-            />
-            <label
-              htmlFor="file-upload"
-              className="flex items-center gap-2 text-sm bg-muted hover:bg-muted/80 text-muted-foreground px-4 py-2 rounded-md cursor-pointer transition-colors"
-            >
-              <Upload size={16} />
-              Upload HTML file
-            </label>
-          </div>
         </div>
       </form>
     </div>

@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { ThemeProvider } from "@/contexts/ThemeContext";
 import { Header } from "@/components/Header";
@@ -8,40 +7,6 @@ import { Footer } from "@/components/Footer";
 import { Video } from "@/components/VideoCard";
 import { Toaster } from "sonner";
 
-// Mock data for demo purposes
-const mockVideos: Video[] = [
-  {
-    id: "1",
-    title: "Introduction to Video Extraction",
-    thumbnail: "https://images.unsplash.com/photo-1611162617213-7d7a39e9b1d7?w=500&auto=format&fit=crop&q=60&ixlib=rb-4.0.3",
-    source: "https://example.com/intro",
-    resolution: "1080p",
-    fileSize: "24.5 MB",
-    format: "MP4",
-    url: "#video1"
-  },
-  {
-    id: "2",
-    title: "Advanced Techniques for Web Scraping",
-    thumbnail: "https://images.unsplash.com/photo-1550751827-4bd374c3f58b?w=500&auto=format&fit=crop&q=60&ixlib=rb-4.0.3",
-    source: "https://example.com/advanced",
-    resolution: "720p",
-    fileSize: "18.2 MB",
-    format: "MP4",
-    url: "#video2"
-  },
-  {
-    id: "3",
-    title: "How to Extract Videos Efficiently",
-    thumbnail: "https://images.unsplash.com/photo-1536240478700-b869070f9279?w=500&auto=format&fit=crop&q=60&ixlib=rb-4.0.3",
-    source: "https://example.com/efficiency",
-    resolution: "4K",
-    fileSize: "156 MB",
-    format: "MKV",
-    url: "#video3"
-  }
-];
-
 const Index = () => {
   const [videos, setVideos] = useState<Video[]>([]);
   const [isLoading, setIsLoading] = useState(false);
@@ -49,14 +14,40 @@ const Index = () => {
   const handleExtract = async (url: string, isFile = false) => {
     setIsLoading(true);
     
-    // Simulate API call with timeout
-    setTimeout(() => {
-      setVideos(mockVideos);
+    try {
+      if (isFile) {
+        // Handle file upload
+        const formData = new FormData();
+        formData.append('file', new File([url], 'upload.html', { type: 'text/html' }));
+        
+        const response = await fetch('http://localhost:8000/api/extract/file', {
+          method: 'POST',
+          body: formData,
+        });
+        
+        if (!response.ok) {
+          throw new Error('Failed to extract videos from file');
+        }
+        
+        const data = await response.json();
+        setVideos(data);
+      } else {
+        // Handle URL extraction
+        const response = await fetch(`http://localhost:8000/api/extract?url=${encodeURIComponent(url)}`);
+        
+        if (!response.ok) {
+          throw new Error('Failed to extract videos from URL');
+        }
+        
+        const data = await response.json();
+        setVideos(data);
+      }
+    } catch (error) {
+      console.error('Error extracting videos:', error);
+      // You might want to show an error toast here
+    } finally {
       setIsLoading(false);
-    }, 2000);
-    
-    // In a real app, you'd fetch the videos from the URL here
-    console.log(`Extracting videos from ${isFile ? "file" : "URL"}: ${url}`);
+    }
   };
 
   return (

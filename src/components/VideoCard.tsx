@@ -1,4 +1,3 @@
-
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardFooter } from "@/components/ui/card";
 import { Download, Film, ExternalLink } from "lucide-react";
@@ -21,13 +20,48 @@ interface VideoCardProps {
 }
 
 export function VideoCard({ video }: VideoCardProps) {
-  const handleDownload = () => {
-    toast.success("Download started", {
-      description: `Downloading ${video.title}`,
-    });
-    
-    // In a real app, this would initiate the actual download
-    // window.location.href = video.url;
+  const handleDownload = async () => {
+    try {
+      const toastId = toast.loading("Starting download...", {
+        description: `Preparing ${video.title}`,
+      });
+
+      // Use the backend to download the video
+      const response = await fetch(`http://localhost:8000/api/download?url=${encodeURIComponent(video.url)}`);
+      
+      if (!response.ok) {
+        throw new Error('Download failed');
+      }
+
+      // Get the filename from the Content-Disposition header or use a default
+      const contentDisposition = response.headers.get('Content-Disposition');
+      const filename = contentDisposition
+        ? contentDisposition.split('filename=')[1].replace(/"/g, '')
+        : `${video.title}.${video.format?.toLowerCase() || 'mp4'}`;
+
+      // Get the blob from the response
+      const blob = await response.blob();
+      
+      // Create a download link and trigger it
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = filename;
+      document.body.appendChild(a);
+      a.click();
+      window.URL.revokeObjectURL(url);
+      document.body.removeChild(a);
+
+      toast.success("Download completed", {
+        id: toastId,
+        description: `Successfully downloaded ${video.title}`,
+      });
+    } catch (error) {
+      console.error('Download error:', error);
+      toast.error("Download failed", {
+        description: "There was an error downloading the video. Please try again.",
+      });
+    }
   };
 
   const handleOpenSource = () => {
