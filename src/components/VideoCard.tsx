@@ -27,7 +27,8 @@ export function VideoCard({ video }: VideoCardProps) {
       });
 
       // Use the backend to download the video
-      const response = await fetch(`http://localhost:8000/api/download?url=${encodeURIComponent(video.url)}`);
+      const apiBaseUrl = import.meta.env.VITE_VIDEO_EXTRACT_API_URL || import.meta.env.NEXT_PUBLIC_VIDEO_EXTRACT_API_URL;
+      const response = await fetch(`${apiBaseUrl}/api/download?url=${encodeURIComponent(video.url)}`);
       
       if (!response.ok) {
         throw new Error('Download failed');

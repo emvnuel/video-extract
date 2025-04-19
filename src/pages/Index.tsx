@@ -20,7 +20,8 @@ const Index = () => {
         const formData = new FormData();
         formData.append('file', new File([url], 'upload.html', { type: 'text/html' }));
         
-        const response = await fetch('http://localhost:8000/api/extract/file', {
+        const apiBaseUrl = import.meta.env.VITE_VIDEO_EXTRACT_API_URL || import.meta.env.NEXT_PUBLIC_VIDEO_EXTRACT_API_URL;
+        const response = await fetch(`${apiBaseUrl}/api/extract/file`, {
           method: 'POST',
           body: formData,
         });
@@ -33,7 +34,8 @@ const Index = () => {
         setVideos(data);
       } else {
         // Handle URL extraction
-        const response = await fetch(`http://localhost:8000/api/extract?url=${encodeURIComponent(url)}`);
+        const apiBaseUrl = import.meta.env.VITE_VIDEO_EXTRACT_API_URL || import.meta.env.NEXT_PUBLIC_VIDEO_EXTRACT_API_URL;
+        const response = await fetch(`${apiBaseUrl}/api/extract?url=${encodeURIComponent(url)}`);
         
         if (!response.ok) {
           throw new Error('Failed to extract videos from URL');

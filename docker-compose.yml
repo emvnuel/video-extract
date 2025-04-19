@@ -2,9 +2,7 @@ version: '3.8'
 
 services:
   frontend:
-    build:
-      context: .
-      dockerfile: Dockerfile
+    image: myawesomeapps/video-extract:1.1
     ports:
       - "80:80"
     depends_on:
@@ -13,19 +11,15 @@ services:
       - app-network
 
   backend:
-    build:
-      context: .
-      dockerfile: src/api/Dockerfile
+    image: myawesomeapps/video-extract-api:1.0
     ports:
       - "8000:8000"
     environment:
       - PYTHONDONTWRITEBYTECODE=1
       - PYTHONUNBUFFERED=1
-    volumes:
-      - ./src/api:/app
     networks:
       - app-network
 
 networks:
   app-network:
-    driver: bridge 
+    driver: bridge
